@@ -1,6 +1,9 @@
-
 <template>
-  <div class="relative w-full h-[calc(100vh-4rem)] bg-slate-50 overflow-hidden">
+  <div 
+    class="relative w-full h-[calc(100vh-4rem)] bg-slate-50 overflow-hidden"
+    @dragover="handleDragOver"
+    @drop="handleDrop"
+  >
     <!-- Grid Background -->
     <div class="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PHBhdHRlcm4gaWQ9ImdyaWQiIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHBhdGggZD0iTSAwIDEwIEwgNDAgMTAgTSAxMCAwIEwgMTAgNDAgTSAwIDIwIEwgNDAgMjAgTSAyMCAwIEwgMjAgNDAgTSAwIDMwIEwgNDAgMzAgTSAzMCAwIEwgMzAgNDAiIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2U1ZTdlYiIgc3Ryb2tlLXdpZHRoPSIxIi8+PC9wYXR0ZXJuPjwvZGVmcz48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSJ1cmwoI2dyaWQpIi8+PC9zdmc+')] opacity-50"></div>
 
@@ -11,6 +14,9 @@
         class="task-node"
         :class="{ 'ring-2 ring-primary ring-offset-2': selectedTaskId === task.id }"
         :style="{ left: `${task.position.x}px`, top: `${task.position.y}px` }"
+        draggable="true"
+        @dragstart="handleTaskDragStart(task)"
+        @dragend="handleTaskDragEnd(task, $event)"
         @click="$emit('taskClick', task.id)"
     >
       <div class="flex items-center space-x-4">
@@ -53,5 +59,55 @@ defineProps<{
 
 defineEmits<{
   (e: 'taskClick', id: string): void;
+  (e: 'updateTaskPosition', taskId: string, position: { x: number, y: number }): void;
+  (e: 'addTask', type: string, position: { x: number, y: number }): void;
 }>();
+
+let draggedTask: Task | null = null;
+
+function handleDragOver(event: DragEvent) {
+  event.preventDefault();
+}
+
+function handleDrop(event: DragEvent) {
+  event.preventDefault();
+  const data = event.dataTransfer?.getData('application/json');
+  if (data) {
+    const task = JSON.parse(data);
+    // Calculate position relative to the canvas
+    const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
+    const position = {
+      x: event.clientX - rect.left,
+      y: event.clientY - rect.top
+    };
+    
+    emit('addTask', task.type, position);
+  }
+}
+
+function handleTaskDragStart(task: Task) {
+  draggedTask = task;
+}
+
+function handleTaskDragEnd(task: Task, event: DragEvent) {
+  if (!draggedTask) return;
+  
+  const rect = (event.currentTarget as HTMLElement).parentElement?.getBoundingClientRect();
+  if (rect) {
+    const position = {
+      x: event.clientX - rect.left,
+      y: event.clientY - rect.top
+    };
+    
+    emit('updateTaskPosition', task.id, position);
+  }
+  draggedTask = null;
+}
 </script>
+
+<style scoped>
+.task-node {
+  @apply absolute bg-white rounded-xl p-4 shadow-sm border border-slate-200 cursor-move select-none;
+  min-width: 240px;
+}
+</style>

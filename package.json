@@ -10,12 +10,14 @@
     "setup-db": "node scripts/setup-db.js"
   },
   "dependencies": {
+    "@types/uuid": "^10.0.0",
     "@vueuse/core": "^10.9.0",
     "axios": "^1.6.7",
     "better-sqlite3": "^9.4.3",
     "ioredis": "^5.3.2",
     "lucide-vue-next": "^0.344.0",
-    "pinia": "^2.1.7",
+    "pinia": "^2.3.1",
+    "uuid": "^11.0.5",
     "vue": "^3.4.21",
     "vue-draggable-next": "^2.2.1",
     "vue-router": "^4.3.0"

@@ -1,54 +1,100 @@
 <template>
   <div class="h-screen flex flex-col bg-gray-50">
     <Header
-        :onSave="handleSave"
-        :onRun="handleRun"
-        :isRunning="isRunning"
+      :showBackButton="currentView === 'editor'"
+      :onSave="handleSave"
+      :onRun="handleRun"
+      :isRunning="isRunning"
+      @backToList="currentView = 'list'"
     />
-    <div class="flex-1 flex overflow-hidden">
-      <Sidebar @addTask="handleAddTask" />
-      <main class="flex-1 p-6 overflow-auto">
-        <WorkflowCanvas
-            :tasks="tasks"
+    
+    <template v-if="currentView === 'list'">
+      <WorkflowList
+        :workflows="workflows"
+        @createWorkflow="handleCreateWorkflow"
+        @editWorkflow="handleEditWorkflow"
+        @runWorkflow="handleRunWorkflow"
+      />
+    </template>
+
+    <template v-else>
+      <div class="flex-1 flex overflow-hidden">
+        <Sidebar @addTask="handleAddTask" />
+        <main class="flex-1 p-6 overflow-auto">
+          <WorkflowCanvas
+            :tasks="currentWorkflow?.tasks || []"
             @taskClick="setSelectedTaskId"
             :selectedTaskId="selectedTaskId"
-        />
-      </main>
-    </div>
+            @updateTaskPosition="handleUpdateTaskPosition"
+            @addTask="handleAddTaskFromDrop"
+          />
+        </main>
+      </div>
+    </template>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
-import { useWorkflowStore } from './stores/workflow';
+import { ref, onMounted } from 'vue';
+import { useWorkflowStore } from './stores/workflowStore';
+import { storeToRefs } from 'pinia';
 import Header from './components/Header.vue';
 import Sidebar from './components/Sidebar.vue';
 import WorkflowCanvas from './components/WorkflowCanvas.vue';
+import WorkflowList from './components/WorkflowList.vue';
 import type { Task } from './types/workflow';
 
 const store = useWorkflowStore();
-const tasks = ref<Task[]>([]);
+const { workflows, currentWorkflow } = storeToRefs(store);
 const selectedTaskId = ref<string>();
 const isRunning = ref(false);
+const currentView = ref<'list' | 'editor'>('list');
 
-const handleAddTask = (type: string) => {
-  const newTask: Task = {
-    id: crypto.randomUUID(),
-    type: type as Task['type'],
-    name: `New ${type} task`,
-    config: {},
-    position: { x: 100, y: 100 },
-  };
-  tasks.value.push(newTask);
+onMounted(async () => {
+  await store.fetchWorkflows();
+});
+
+const handleCreateWorkflow = async () => {
+  await store.createWorkflow('New Workflow', 'Created workflow');
+  currentView.value = 'editor';
+};
+
+const handleEditWorkflow = async (id: string) => {
+  await store.loadWorkflow(id);
+  currentView.value = 'editor';
+};
+
+const handleRunWorkflow = async (id: string) => {
+  isRunning.value = true;
+  try {
+    await store.executeWorkflow(id);
+  } finally {
+    isRunning.value = false;
+  }
+};
+
+const handleAddTaskFromDrop = async (type: Task['type'], position: { x: number, y: number }) => {
+  if (currentWorkflow.value) {
+    await store.addTask(type, `New ${type} task`, position);
+  }
+};
+
+const handleUpdateTaskPosition = async (taskId: string, position: { x: number, y: number }) => {
+  if (currentWorkflow.value) {
+    await store.updateTaskPosition(taskId, position);
+  }
+};
+
+const handleAddTask = async (type: Task['type']) => {
+  if (currentWorkflow.value) {
+    await store.addTask(type, `New ${type} task`, { x: 100, y: 100 });
+  }
 };
 
 const handleSave = async () => {
-  await store.createWorkflow({
-    name: 'New Workflow',
-    description: 'Created workflow',
-    tasks: tasks.value,
-    connections: [],
-  });
+  if (currentWorkflow.value) {
+    await store.updateWorkflow();
+  }
 };
 
 const handleRun = async () => {

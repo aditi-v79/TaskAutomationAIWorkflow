@@ -1,9 +1,11 @@
 export interface Task {
   id: string;
-  type: 'scraping' | 'summarization' | 'email' | 'classification';
+  type: string;
   name: string;
-  config: Record<string, any>;
-  position: { x: number; y: number };
+  position: {
+    x: number;
+    y: number;
+  };
 }
 
 export interface Workflow {

@@ -10,6 +10,8 @@
       <button
           v-for="task in tasks"
           :key="task.type"
+          draggable="true"
+          @dragstart="handleDragStart(task)"
           @click="$emit('addTask', task.type)"
           class="w-full flex items-center space-x-3 p-4 rounded-xl hover:bg-slate-50
           border border-transparent hover:border-slate-200 transition-all duration-200 text-left group"
@@ -62,4 +64,12 @@ const tasks = [
 defineEmits<{
   (e: 'addTask', type: string): void;
 }>();
+
+function handleDragStart(task: typeof tasks[0]) {
+  // Set the drag data with the task type
+  event?.dataTransfer?.setData('application/json', JSON.stringify({
+    type: task.type,
+    name: task.name
+  }));
+}
 </script>
