@@ -43,7 +43,7 @@
 
 <script setup lang="ts">
 import { Database, Activity, Mail, Image, Move as MoveIcon } from 'lucide-vue-next';
-import type { Task } from '../types/workflow';
+import type { TaskNode, Connection } from '../types/workflow';
 
 const taskIcons = {
   scraping: Database,
@@ -52,18 +52,19 @@ const taskIcons = {
   classification: Image,
 };
 
-defineProps<{
-  tasks: Task[];
+const props = defineProps<{
+  tasks: TaskNode[];
+  connections: Connection[];
   selectedTaskId?: string;
 }>();
 
-defineEmits<{
-  (e: 'taskClick', id: string): void;
-  (e: 'updateTaskPosition', taskId: string, position: { x: number, y: number }): void;
-  (e: 'addTask', type: string, position: { x: number, y: number }): void;
+const emit = defineEmits<{
+  (e: 'updateTask', task: TaskNode): void;
+  (e: 'createConnection', connection: { sourceId: string; targetId: string }): void;
+  (e: 'selectTask', taskId: string): void;
 }>();
 
-let draggedTask: Task | null = null;
+let draggedTask: TaskNode | null = null;
 
 function handleDragOver(event: DragEvent) {
   event.preventDefault();
@@ -85,11 +86,11 @@ function handleDrop(event: DragEvent) {
   }
 }
 
-function handleTaskDragStart(task: Task) {
+function handleTaskDragStart(task: TaskNode) {
   draggedTask = task;
 }
 
-function handleTaskDragEnd(task: Task, event: DragEvent) {
+function handleTaskDragEnd(task: TaskNode, event: DragEvent) {
   if (!draggedTask) return;
   
   const rect = (event.currentTarget as HTMLElement).parentElement?.getBoundingClientRect();

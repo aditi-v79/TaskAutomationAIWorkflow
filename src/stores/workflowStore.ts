@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
-import type { Workflow, Task } from '../types/workflow';
+import type { Workflow, TaskNode } from '../types/workflow';
 import { api } from '../lib/api';
 
 export const useWorkflowStore = defineStore('workflow', () => {
@@ -58,14 +58,18 @@ export const useWorkflowStore = defineStore('workflow', () => {
     }
   };
 
-  const addTask = async (type: Task['type'], name: string, position: { x: number, y: number }) => {
+  const addTask = async (type: TaskNode['type'], name: string, position: { x: number, y: number }) => {
     if (!currentWorkflow.value) return;
 
-    const task: Task = {
+    const task: TaskNode = {
       id: crypto.randomUUID(),
       type,
       name,
       position,
+      workflowId: currentWorkflow.value.id,
+      inputs: [],
+      outputs: [],
+      config: {}
     };
 
     currentWorkflow.value.tasks.push(task);
