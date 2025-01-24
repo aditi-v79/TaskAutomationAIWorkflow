@@ -1,4 +1,4 @@
-export interface TaskNode {
+export interface TaskNodeType {
   id: string;
   workflowId: string;  // Add this to associate with workflow
   type: 'scraping' | 'summarization' | 'email' | 'classification';
@@ -19,13 +19,15 @@ export interface Connection {
   targetId: string;    // Target task ID
   sourceHandle?: string; // Optional: for multiple connection points
   targetHandle?: string;
+  status?: string; 
+
 }
 
 export interface Workflow {
   id: string;
   name: string;
   description: string;
-  tasks: TaskNode[];
+  tasks: TaskNodeType[];
   connections: Connection[];
   status: 'idle' | 'running' | 'completed' | 'failed';
   created_at: string;
@@ -45,3 +47,5 @@ export interface WorkflowExecution {
   started_at: string;
   completed_at?: string;
 }
+
+export type TaskType = 'scraping' | 'summarization' | 'email' | 'classification';

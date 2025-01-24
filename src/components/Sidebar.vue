@@ -11,8 +11,8 @@
           v-for="task in tasks"
           :key="task.type"
           draggable="true"
-          @dragstart="handleDragStart(task)"
-          @click="$emit('addTask', task.type)"
+          @dragstart="handleDragStart(task, $event)"
+          @click="$emit('addTask', task.type as TaskType)"
           class="w-full flex items-center space-x-3 p-4 rounded-xl hover:bg-slate-50
           border border-transparent hover:border-slate-200 transition-all duration-200 text-left group"
       >
@@ -33,6 +33,7 @@
 
 <script setup lang="ts">
 import { Database, Activity, Mail, Image, Plus, Boxes } from 'lucide-vue-next';
+import type { TaskType } from '../types/workflow';
 
 const tasks = [
   {
@@ -62,10 +63,10 @@ const tasks = [
 ];
 
 defineEmits<{
-  (e: 'addTask', type: string): void;
+  (e: 'addTask', type: TaskType): void;
 }>();
 
-function handleDragStart(task: typeof tasks[0]) {
+function handleDragStart(task: typeof tasks[0],event: DragEvent) {
   // Set the drag data with the task type
   event?.dataTransfer?.setData('application/json', JSON.stringify({
     type: task.type,

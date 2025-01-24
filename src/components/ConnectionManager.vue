@@ -20,21 +20,31 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import { ref } from 'vue';
 import { connectionValidation } from '../services/connectionValidation';
-import type { Connection, TaskNode } from '../types/workflow';
+import type { Connection, TaskNodeType } from '../types/workflow';
 
 const props = defineProps<{
   connections: Connection[];
-  tasks: TaskNode[];
+  tasks: TaskNodeType[];
+}>();
+
+const emit = defineEmits<{
+  (e: 'createConnection', payload: { sourceId: string; targetId: string }): void;
 }>();
 
 const activeConnection = ref<{
   source: { x: number; y: number };
   target: { x: number; y: number };
-  sourceTask?: TaskNode;
+  sourceTask?: TaskNodeType;
   isValid: boolean;
 } | null>(null);
+
+// Function to get node position
+const getNodePosition = (taskId: string) => {
+  const task = props.tasks.find(t => t.id === taskId);
+  return task ? task.position : { x: 0, y: 0 }; // Default position if task not found
+};
 
 // Connection handling methods
 const startConnection = (taskId: string, event: MouseEvent) => {
@@ -73,5 +83,12 @@ const endConnection = (targetTaskId: string) => {
   }
 
   activeConnection.value = null;
+  
+  // Expose methods
+defineExpose({
+  startConnection,
+  endConnection,
+});
+
 };
 </script>

@@ -23,6 +23,7 @@
         <main class="flex-1 p-6 overflow-auto">
           <WorkflowCanvas
             :tasks="currentWorkflow?.tasks || []"
+            :connections="currentWorkflow?.connections || []"
             @taskClick="setSelectedTaskId"
             :selectedTaskId="selectedTaskId"
             @updateTaskPosition="handleUpdateTaskPosition"
@@ -42,7 +43,7 @@ import Header from './components/Header.vue';
 import Sidebar from './components/Sidebar.vue';
 import WorkflowCanvas from './components/WorkflowCanvas.vue';
 import WorkflowList from './components/WorkflowList.vue';
-import type { Task } from './types/workflow';
+import type { TaskType } from './types/workflow';
 
 const store = useWorkflowStore();
 const { workflows, currentWorkflow } = storeToRefs(store);
@@ -73,7 +74,7 @@ const handleRunWorkflow = async (id: string) => {
   }
 };
 
-const handleAddTaskFromDrop = async (type: Task['type'], position: { x: number, y: number }) => {
+const handleAddTaskFromDrop = async (type: TaskType, position: { x: number, y: number }) => {
   if (currentWorkflow.value) {
     await store.addTask(type, `New ${type} task`, position);
   }
@@ -85,7 +86,7 @@ const handleUpdateTaskPosition = async (taskId: string, position: { x: number, y
   }
 };
 
-const handleAddTask = async (type: Task['type']) => {
+const handleAddTask = async (type: TaskType) => {
   if (currentWorkflow.value) {
     await store.addTask(type, `New ${type} task`, { x: 100, y: 100 });
   }

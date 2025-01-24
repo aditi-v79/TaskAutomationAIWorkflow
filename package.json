@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@types/uuid": "^10.0.0",
+    "@vue-flow/core": "^1.42.1",
     "@vueuse/core": "^10.9.0",
     "axios": "^1.6.7",
     "better-sqlite3": "^9.4.3",
