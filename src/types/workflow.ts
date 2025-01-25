@@ -1,7 +1,7 @@
 export interface TaskNodeType {
   id: string;
   workflowId: string;  // Add this to associate with workflow
-  type: 'scraping' | 'summarization' | 'email' | 'classification';
+  type: 'summarization' | 'scraping' | 'classification' | 'email'
   name: string;
   position: {
     x: number;
@@ -9,7 +9,7 @@ export interface TaskNodeType {
   };
   inputs: string[];   // IDs of connected input nodes
   outputs: string[];  // IDs of connected output nodes
-  config: Record<string, any>;
+  config: SummarizationConfig | ScrapingConfig | ClassificationConfig | EmailConfig;
 }
 
 export interface Connection {
@@ -29,6 +29,29 @@ export interface ActiveConnection {
   targetPosition: { x: number; y: number };
   isValid: boolean;
 }
+
+export interface SummarizationConfig {
+  input_text: string;
+  max_length?: number;
+  min_length?: number;
+ }
+ 
+ export interface ScrapingConfig {
+  url: string; 
+  selectors: string[];
+ }
+ 
+ export interface ClassificationConfig {
+  image_url: string;
+  confidence_threshold?: number;
+ }
+ 
+ export interface EmailConfig {
+  recipient: string;
+  subject: string;
+  body: string;
+ }
+ 
 
 
 export interface Workflow {

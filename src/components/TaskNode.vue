@@ -74,7 +74,7 @@ const emit = defineEmits<{
 }>();
 
 const activeConnection = ref<{ sourceId?: string; sourceHandle?: string; targetId?: string; targetHandle?: string; position?: { x: number; y: number } } | null>(null);
-
+const showConfig = ref(false);
 
 const handleConnectionStart = (event: MouseEvent) => {
   event.stopPropagation();
@@ -86,6 +86,7 @@ const handleConnectionEnd = (event: MouseEvent, handleType: string) => {
   event.stopPropagation();
   emit('connectionEnd',  props.task.id, handleType );
 };
+
 
 </script>
 

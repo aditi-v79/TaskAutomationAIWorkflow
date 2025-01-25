@@ -10,6 +10,7 @@
     "setup-db": "node scripts/setup-db.js"
   },
   "dependencies": {
+    "@headlessui/vue": "^1.7.23",
     "@types/uuid": "^10.0.0",
     "@vue-flow/core": "^1.42.1",
     "@vueuse/core": "^10.9.0",

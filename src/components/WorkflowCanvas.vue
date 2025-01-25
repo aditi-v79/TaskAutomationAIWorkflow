@@ -40,7 +40,7 @@
       @dragend="handleTaskDragEnd(task, $event)"
       @connectionStart="handleStartConnection"
       @connectionEnd="handleEndConnection"
-    
+      @configure="openConfigModal"
     />
 
     <!-- Empty State -->
@@ -52,14 +52,25 @@
       </div>
     </div>
   </div>
+
+    <!--Task Config Modal -->
+    <TaskConfigModal 
+     v-if="showConfig"
+    :is-open="showConfig"
+    :task="selectedTaskForConfig"
+    @close="showConfig = false"
+    @save="handleConfigSave"
+  />
+
 </template>
 
 <script setup lang="ts">
 import { Move as MoveIcon } from 'lucide-vue-next';
-import type { TaskNodeType, Connection } from '../types/workflow';
+import type { TaskNodeType, Connection, ScrapingConfig,SummarizationConfig,EmailConfig, ClassificationConfig } from '../types/workflow';
 import { defineEmits,ref } from 'vue';
 import { TaskType,ActiveConnection } from '../types/workflow';
 import TaskNode from './TaskNode.vue';
+import TaskConfigModal from './TaskConfigModal.vue';
 import { connectionValidation } from '../services/connectionValidation';
 
 
@@ -80,6 +91,8 @@ const emit = defineEmits<{
 
 let draggedTask: TaskNodeType | null = null;
 const activeConnection = ref<ActiveConnection | null>(null);
+  const showConfig = ref(false);
+  const selectedTaskForConfig = ref<TaskNodeType | undefined>(undefined); ;
 
 const getNodeHandlePosition = (nodeId: string, handleType: 'source' | 'target') => {
   const node = document.getElementById(nodeId);
@@ -152,6 +165,24 @@ function handleMouseMove(event: MouseEvent) {
     activeConnection.value.targetPosition = { x: event.clientX, y: event.clientY };
   }
 }
+
+const openConfigModal = (task: TaskNodeType) => {
+  selectedTaskForConfig.value = task;
+  showConfig.value = true;
+};
+
+const handleConfigSave = (config: SummarizationConfig | ScrapingConfig | ClassificationConfig | EmailConfig) => {
+  if (selectedTaskForConfig.value) {
+    const updatedTask = {
+      ...selectedTaskForConfig.value,
+      config
+    };
+    emit('updateTask', updatedTask);
+  }
+  showConfig.value = false;
+  selectedTaskForConfig.value = undefined;
+};
+
 
 </script>
 
