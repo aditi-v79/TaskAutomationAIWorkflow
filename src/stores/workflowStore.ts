@@ -58,14 +58,37 @@ export const useWorkflowStore = defineStore('workflow', () => {
     }
   };
 
-  const addTask = async (type: TaskNodeType['type'], name: string, position: { x: number, y: number }) => {
+  const addTask = async (type: TaskNodeType['type'], name: string) => {
     if (!currentWorkflow.value) return;
+
+    // Calculate default position
+    const spacingX = 300; // Define the spacing between nodes
+    const spacingY = 150; // Vertical spacing
+    const existingTasks = currentWorkflow.value.tasks;
+
+    // Determine the new position based on existing tasks
+    let newPosition = { x: 150, y: 150 }; // Default position
+  
+    if (existingTasks.length > 0) {
+      // Calculate new x position based on the last task's x position
+      const lastTask = existingTasks[existingTasks.length - 1];
+      newPosition.x = lastTask.position.x + spacingX;
+  
+      // Check if the new x position exceeds a certain limit (e.g., canvas width)
+      if (newPosition.x > 800) { // Adjust this limit based on your canvas width
+        newPosition.x = 100; // Reset x position
+        newPosition.y = lastTask.position.y + spacingY; // Move down to the next row
+      } else {
+        newPosition.y = lastTask.position.y; // Keep the same y position
+      }
+    }
+
 
     const task: TaskNodeType = {
       id: crypto.randomUUID(),
       type,
       name,
-      position,
+      position: newPosition,
       workflowId: currentWorkflow.value.id,
       inputs: [],
       outputs: [],

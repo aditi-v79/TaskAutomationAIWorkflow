@@ -7,19 +7,21 @@
       'border-green-500': isConfigured,
       'border-red-500': hasError
     }"
-    draggable="true"
+    
     @click="$emit('select', task.id)"
   >
   <!-- Source Handle (Output) -->
   <button 
       class="handle handle-right"
-      @mousedown.stop="handleConnectionStart"
+      draggable="false"
+      @mousedown="handleConnectionStart"
     >
       <div class="handle-point"></div>
   </button>
+  <Handle type="source" position="right"></Handle>
 
     <!-- Node Content -->
-    <div class="flex items-center gap-2">
+    <div class="flex items-center gap-2" draggable="true">
       <component :is="taskIcons[task.type]" class="w-5 h-5" />
       <span>{{ task.name }}</span>
       <button 
@@ -30,10 +32,12 @@
       </button>
     </div>
 
+
       <!-- Target Handle (Input) -->
     <button 
       class="handle handle-left"
-      @mousedown="handleConnectionEnd"
+      draggable="false"
+      @mousedown="(e) => handleConnectionEnd(e, 'target')"
     >
       <div class="handle-point"></div>
     </button>
@@ -45,7 +49,7 @@
 <script setup lang="ts">
 import { Database, Activity, Mail, Image, Settings } from 'lucide-vue-next';
 import type { TaskNodeType } from '../types/workflow';
-
+import {ref} from 'vue';
 
 const taskIcons = {
   scraping: Database,
@@ -65,19 +69,24 @@ const props = defineProps<{
 const emit = defineEmits<{
   (e: 'select', id: string): void;
   (e: 'configure', task: TaskNodeType): void;
-  (e: 'connectionStart', taskId: string, event: MouseEvent): void;
-  (e: 'connectionEnd', taskId: string): void;
+  (e: 'connectionStart', taskId: string, position: { x: number; y: number } ): void;
+  (e: 'connectionEnd', taskId: string, handleType:string): void;
 }>();
+
+const activeConnection = ref<{ sourceId?: string; sourceHandle?: string; targetId?: string; targetHandle?: string; position?: { x: number; y: number } } | null>(null);
+
 
 const handleConnectionStart = (event: MouseEvent) => {
   event.stopPropagation();
-  emit('connectionStart', props.task.id,event);
+  const position = { x: event.clientX, y: event.clientY };
+  emit('connectionStart', props.task.id, position);
 };
 
-const handleConnectionEnd = (event: MouseEvent) => {
+const handleConnectionEnd = (event: MouseEvent, handleType: string) => {
   event.stopPropagation();
-  emit('connectionEnd', props.task.id);
+  emit('connectionEnd',  props.task.id, handleType );
 };
+
 </script>
 
 <style scoped>

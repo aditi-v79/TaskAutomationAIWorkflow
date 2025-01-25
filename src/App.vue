@@ -74,9 +74,9 @@ const handleRunWorkflow = async (id: string) => {
   }
 };
 
-const handleAddTaskFromDrop = async (type: TaskType, position: { x: number, y: number }) => {
+const handleAddTaskFromDrop = async (type: TaskType) => {
   if (currentWorkflow.value) {
-    await store.addTask(type, `New ${type} task`, position);
+    await store.addTask(type, `New ${type} task`);
   }
 };
 
@@ -88,7 +88,7 @@ const handleUpdateTaskPosition = async (taskId: string, position: { x: number, y
 
 const handleAddTask = async (type: TaskType) => {
   if (currentWorkflow.value) {
-    await store.addTask(type, `New ${type} task`, { x: 100, y: 100 });
+    await store.addTask(type, `New ${type} task`);
   }
 };
 

@@ -1,6 +1,6 @@
-import type { TaskNode } from '../types/workflow';
+import type { TaskNodeType } from '../types/workflow';
 
-type TaskType = TaskNode['type'];
+type TaskType = TaskNodeType['type'];
 
 const CONNECTION_RULES: Record<TaskType, TaskType[]> = {
   'scraping': ['summarization', 'email'],

@@ -1,25 +1,31 @@
-from celery import shared_task
+import asyncio
 from django.utils import timezone
 from apps.workflows.models import Workflow
 from apps.executions.models import WorkflowExecution
 from apps.ml.services import MLService
 
-@shared_task
-def execute_workflow(workflow_id):
-    workflow = Workflow.objects.get(id=workflow_id)
-    execution = WorkflowExecution.objects.create(workflow=workflow)
+
+async def execute_workflow(workflow_id):
+    workflow = await Workflow.objects.get(id=workflow_id)
+    execution = await WorkflowExecution.objects.create(workflow=workflow)
     
     try:
         workflow.status = 'running'
-        workflow.save()
+        await workflow.asave()
         
         ml_service = MLService()
         
         for task in workflow.tasks:
             if task['type'] == 'summarization':
-                result = ml_service.summarize_text(task['config'].get('text', ''))
+                result = await asyncio.to_thread(
+                    ml_service.summarize_text,
+                    task['config'].get('text', '')
+                )            
             elif task['type'] == 'classification':
-                result = ml_service.classify_image(task['config'].get('image_url', ''))
+                result = await asyncio.to_thread(
+                   ml_service.classify_image,
+                   task['config'].get('image_url', '')
+               )
             
             execution.logs.append({
                 'task_id': task['id'],
@@ -27,7 +33,7 @@ def execute_workflow(workflow_id):
                 'timestamp': timezone.now().isoformat(),
                 'level': 'info'
             })
-            execution.save()
+            await execution.save()
         
         workflow.status = 'completed'
         execution.status = 'completed'

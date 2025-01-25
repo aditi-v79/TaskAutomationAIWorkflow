@@ -3,12 +3,30 @@
     class="relative w-full h-[calc(100vh-4rem)] bg-slate-50 overflow-hidden"
     @dragover="handleDragOver"
     @drop="handleDrop"
+    @mousemove="handleMouseMove" 
   >
     <!-- Grid Background -->
     <div class="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PHBhdHRlcm4gaWQ9ImdyaWQiIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHBhdGggZD0iTSAwIDEwIEwgNDAgMTAgTSAxMCAwIEwgMTAgNDAgTSAwIDIwIEwgNDAgMjAgTSAyMCAwIEwgMjAgNDAgTSAwIDMwIEwgNDAgMzAgTSAzMCAwIEwgMzAgNDAiIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2U1ZTdlYiIgc3Ryb2tlLXdpZHRoPSIxIi8+PC9wYXR0ZXJuPjwvZGVmcz48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSJ1cmwoI2dyaWQpIi8+PC9zdmc+')] opacity-50"></div>
 
     <!-- Existing Connections -->
-    <ConnectionManager :connections="connections" :tasks="tasks" />
+    <!-- <ConnectionManager :connections="connections" :tasks="tasks" /> -->
+
+    <<!-- Render Existing Connections -->
+    <ConnectionLine
+      v-for="connection in connections"
+      :key="connection.id"
+      :source="getNodeHandlePosition(connection.sourceId, connection.sourceHandle)"
+      :target="getNodeHandlePosition(connection.targetId, connection.targetHandle)"
+    />
+
+    <!-- Render Active (Temporary) Connection -->
+    <ConnectionLine
+      v-if="activeConnection"
+      :source="activeConnection.sourcePosition"
+      :target="activeConnection.targetPosition"
+      :status="activeConnection.isValid ? 'valid' : 'invalid'"
+    />
+/>
 
     <!-- Render Task Nodes -->
     <TaskNode
@@ -20,8 +38,9 @@
       @select="selectTask(task.id)"
       @dragstart="handleTaskDragStart(task)"
       @dragend="handleTaskDragEnd(task, $event)"
-      @connectionStart="startConnection"
-      @connectionEnd="endConnection"
+      @connectionStart="handleStartConnection"
+      @connectionEnd="handleEndConnection"
+    
     />
 
     <!-- Empty State -->
@@ -39,9 +58,9 @@
 import { Move as MoveIcon } from 'lucide-vue-next';
 import type { TaskNodeType, Connection } from '../types/workflow';
 import { defineEmits,ref } from 'vue';
-import { TaskType } from '../types/workflow';
+import { TaskType,ActiveConnection } from '../types/workflow';
 import TaskNode from './TaskNode.vue';
-import ConnectionManager from './ConnectionManager.vue';
+import { connectionValidation } from '../services/connectionValidation';
 
 
 
@@ -60,8 +79,18 @@ const emit = defineEmits<{
 }>();
 
 let draggedTask: TaskNodeType | null = null;
-const connectionManager = ref<InstanceType<typeof ConnectionManager> | null>(null);
+const activeConnection = ref<ActiveConnection | null>(null);
 
+const getNodeHandlePosition = (nodeId: string, handleType: 'source' | 'target') => {
+  const node = document.getElementById(nodeId);
+  if (!node) return { x: 0, y: 0 };
+
+  const rect = node.getBoundingClientRect();
+  return {
+    x: handleType === 'source' ? rect.right : rect.left,
+    y: rect.top + (rect.height / 2)
+  };
+};
 
 function handleDragOver(event: DragEvent) {
   event.preventDefault();
@@ -105,15 +134,24 @@ const selectTask = (id: string) => {
   emit('selectTask', id);
 };
 
-const startConnection = (taskId: string, event: MouseEvent) => {
-  if (connectionManager.value) {
-    connectionManager.value.startConnection(taskId,event);
-  }
+function handleStartConnection(taskId: string, position: { x: number, y: number } ) {
+  activeConnection.value = {
+    sourceId: taskId,
+    sourcePosition: position,
+    targetPosition: position,
+    isValid: false
+  };
+}
+
+const handleEndConnection = (targetId: string) => {
+  
 };
 
-const endConnection = (taskId: string) => {
-  connectionManager.value?.endConnection(taskId);
-};
+function handleMouseMove(event: MouseEvent) {
+  if (activeConnection.value) {
+    activeConnection.value.targetPosition = { x: event.clientX, y: event.clientY };
+  }
+}
 
 </script>
 
