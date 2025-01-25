@@ -1,4 +1,4 @@
-from transformers import pipeline, AutoModelForSeq2SeqGeneration, AutoTokenizer
+from transformers import pipeline, AutoModelForSeq2SeqLM, AutoTokenizer
 import requests
 from bs4 import BeautifulSoup
 import smtplib

@@ -6,13 +6,12 @@ A modern workflow automation platform that leverages AI/ML capabilities for task
 
 - Visual workflow builder with drag-and-drop interface
 - AI-powered task automation:
-  - Text summarization using GPT
-  - Image classification using YOLO
+  - Text summarization 
+  - Image classification 
   - Data scraping
   - Email automation
 - Real-time workflow execution monitoring
-- Scalable microservices architecture
-- Container orchestration with Docker Swarm
+
 
 ## Tech Stack
 
@@ -26,16 +25,15 @@ A modern workflow automation platform that leverages AI/ML capabilities for task
 
 ### Backend
 - Django REST Framework
-- PostgreSQL
-- Redis for task queues
-- Celery for async task processing
-- Docker & Docker Swarm
-- NGINX for reverse proxy
+- SQLite
+- Docker 
 
-### AI/ML
-- OpenAI GPT for text processing
-- YOLO for image classification
-- Hugging Face Transformers
+### AI/ML and other 
+- Hugging face transformers:
+   - Text summarization using facebook/bart-large-cnn
+   - Image classification using google/vit-base-patch16-224
+- BeautifulSoup4 for web scraping
+- SMTP for email automation
 
 ## Project Structure
 
@@ -43,9 +41,9 @@ A modern workflow automation platform that leverages AI/ML capabilities for task
 .
 ├── frontend/               # Vue.js frontend application
 │   ├── src/
-│   │   ├── components/    # Reusable Vue components
+│   │   ├── components/    # Reusable Vue components and Page components
 │   │   ├── stores/        # Pinia stores
-│   │   ├── views/         # Page components
+│   │   ├── services/      # Utility functions
 │   │   └── types/         # TypeScript definitions
 │   └── public/            # Static assets
 │
@@ -53,14 +51,11 @@ A modern workflow automation platform that leverages AI/ML capabilities for task
 │   ├── apps/
 │   │   ├── workflows/     # Workflow management
 │   │   ├── executions/    # Workflow execution
-│   │   └── ml/           # AI/ML services
-│   ├── core/             # Core Django settings
-│   └── requirements/     # Python dependencies
+│   │   └── ml/            # ML services
+│   ├── core/              # Core Django settings
+│   └── requirements/      # Python dependencies
 │
-└── docker/               # Docker configuration
-    ├── frontend/         # Frontend container
-    ├── backend/          # Backend container
-    └── nginx/            # NGINX reverse proxy
+└── data/                  # SQLite database            
 ```
 
 ## Getting Started
@@ -70,45 +65,15 @@ A modern workflow automation platform that leverages AI/ML capabilities for task
 - Docker and Docker Compose
 - Node.js 18+
 - Python 3.10+
-- PostgreSQL
-- Redis
+- SQLite
 
 ### Development Setup
+1. Clone the repository
+2. Run `docker-compose up --build`
+3. Access the application at:
+   - Frontend: http://localhost:5173
+   - Backend: http://localhost:8000
 
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/yourusername/workflow-automation.git
-   cd workflow-automation
-   ```
-
-2. Start the development environment:
-   ```bash
-   docker-compose up -d
-   ```
-
-3. Install frontend dependencies:
-   ```bash
-   cd frontend
-   npm install
-   npm run dev
-   ```
-
-4. Create and activate Python virtual environment:
-   ```bash
-   cd backend
-   python -m venv venv
-   source venv/bin/activate  # On Windows: .\venv\Scripts\activate
-   pip install -r requirements/local.txt
-   ```
-
-5. Run database migrations:
-   ```bash
-   python manage.py migrate
-   ```
-
-6. Start the development server:
-   ```bash
-   python manage.py runserver
    ```
 
 The application will be available at:
@@ -116,21 +81,6 @@ The application will be available at:
 - Backend API: http://localhost:8000
 - API Documentation: http://localhost:8000/api/docs/
 
-## Deployment
-
-1. Build Docker images:
-   ```bash
-   docker-compose -f docker-compose.prod.yml build
-   ```
-
-2. Initialize Docker Swarm:
-   ```bash
-   docker swarm init
-   ```
-
-3. Deploy the stack:
-   ```bash
-   docker stack deploy -c docker-compose.prod.yml workflow-platform
    ```
 
 ## Contributing

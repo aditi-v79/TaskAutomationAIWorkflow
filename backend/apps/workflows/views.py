@@ -4,7 +4,7 @@ from rest_framework.response import Response
 from django.core.cache import cache
 from django.conf import settings
 from .models import Workflow
-from .serializers import WorkflowSerializer
+from .serializers import WorkflowSerializer, TaskSerializer, ConnectionSerializer
 from apps.executions.tasks import execute_workflow
 
 class WorkflowViewSet(viewsets.ModelViewSet):

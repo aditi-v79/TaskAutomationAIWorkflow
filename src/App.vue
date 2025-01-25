@@ -1,4 +1,5 @@
 <template>
+  <router-view>
   <div class="h-screen flex flex-col bg-gray-50">
     <Header
       :showBackButton="currentView === 'editor'"
@@ -33,6 +34,7 @@
       </div>
     </template>
   </div>
+</router-view>
 </template>
 
 <script setup lang="ts">
