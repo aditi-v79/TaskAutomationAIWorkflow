@@ -39,3 +39,23 @@ class WorkflowViewSet(viewsets.ModelViewSet):
             'execution_id': execution.id,
             'status': 'started'
         })
+
+class TaskViewSet(viewsets.ModelViewSet):
+    serializer_class = TaskSerializer
+
+    def get_queryset(self):
+        return Task.objects.filter(workflow_id=self.kwargs['workflow_pk'])
+
+    def perform_create(self, serializer):
+        workflow = Workflow.objects.get(pk=self.kwargs['workflow_pk'])
+        serializer.save(workflow=workflow)
+
+class ConnectionViewSet(viewsets.ModelViewSet):
+    serializer_class = ConnectionSerializer
+
+    def get_queryset(self):
+        return Connection.objects.filter(workflow_id=self.kwargs['workflow_pk'])
+
+    def perform_create(self, serializer):
+        workflow = Workflow.objects.get(pk=self.kwargs['workflow_pk'])
+        serializer.save(workflow=workflow)

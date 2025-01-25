@@ -18,9 +18,13 @@ schema_view = get_schema_view(
 
 router = DefaultRouter()
 router.register(r'workflows', WorkflowViewSet)
+workflows_router = routers.NestedDefaultRouter(router, r'workflows', lookup='workflow')
+workflows_router.register(r'tasks', TaskViewSet, basename='workflow-tasks')
+workflows_router.register(r'connections', ConnectionViewSet, basename='workflow-connections')
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include(router.urls)),
+    path('api/', include(workflows_router.urls)),
     path('api/docs/', schema_view.with_ui('swagger', cache_timeout=0)),
 ]

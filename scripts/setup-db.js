@@ -1,5 +1,4 @@
 import Database from 'better-sqlite3';
-import Redis from 'ioredis';
 import { mkdir } from 'fs/promises';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
@@ -41,6 +40,40 @@ async function setupDatabase() {
         CREATE INDEX IF NOT EXISTS idx_workflows_created_at ON workflows(created_at);
       `);
 
+      // Tasks table
+      db.exec(`
+        CREATE TABLE IF NOT EXISTS tasks (
+          id TEXT PRIMARY KEY,
+          workflow_id TEXT NOT NULL,
+          type TEXT NOT NULL,
+          name TEXT NOT NULL,
+          config JSON,
+          position_x INTEGER,
+          position_y INTEGER,
+          created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+          updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+          FOREIGN KEY (workflow_id) REFERENCES workflows(id)
+        );
+
+        CREATE INDEX IF NOT EXISTS idx_tasks_workflow ON tasks(workflow_id);
+      `);
+
+      // Connections table
+      db.exec(`
+        CREATE TABLE IF NOT EXISTS connections (
+          id TEXT PRIMARY KEY,
+          workflow_id TEXT NOT NULL,
+          source_id TEXT NOT NULL,
+          target_id TEXT NOT NULL,
+          created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+          FOREIGN KEY (workflow_id) REFERENCES workflows(id),
+          FOREIGN KEY (source_id) REFERENCES tasks(id),
+          FOREIGN KEY (target_id) REFERENCES tasks(id)
+        );
+
+        CREATE INDEX IF NOT EXISTS idx_connections_workflow ON connections(workflow_id);
+      `);
+
       // Executions table
       db.exec(`
         CREATE TABLE IF NOT EXISTS executions (
@@ -69,38 +102,37 @@ async function setupDatabase() {
   }
 }
 
-async function setupRedis() {
-  const redis = new Redis({
-    host: 'localhost',
-    port: 6379,
-    maxRetriesPerRequest: 3,
-    retryStrategy: (times) => {
-      if (times > 3) {
-        return null; // Stop retrying
-      }
-      return Math.min(times * 200, 1000); // Exponential backoff
-    }
-  });
+// async function setupRedis() {
+//   const redis = new Redis({
+//     host: 'localhost',
+//     port: 6379,
+//     maxRetriesPerRequest: 3,
+//     retryStrategy: (times) => {
+//       if (times > 3) {
+//         return null; // Stop retrying
+//       }
+//       return Math.min(times * 200, 1000); // Exponential backoff
+//     }
+//   });
 
-  try {
-    await redis.ping();
-    console.log('✅ Redis connection successful');
-    return true;
-  } catch (error) {
-    console.error('❌ Redis connection failed:', error.message);
-    return false;
-  } finally {
-    redis.disconnect();
-  }
-}
+//   try {
+//     await redis.ping();
+//     console.log('✅ Redis connection successful');
+//     return true;
+//   } catch (error) {
+//     console.error('❌ Redis connection failed:', error.message);
+//     return false;
+//   } finally {
+//     redis.disconnect();
+//   }
+// }
 
 // Run setup
 async function main() {
   try {
     const dbSuccess = await setupDatabase();
-    const redisSuccess = await setupRedis();
 
-    if (dbSuccess && redisSuccess) {
+    if (dbSuccess) {
       console.log('📁 Setup completed successfully');
       console.log('   Database location:', dbPath);
       process.exit(0);
