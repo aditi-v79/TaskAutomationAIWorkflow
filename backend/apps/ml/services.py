@@ -1,4 +1,4 @@
-from transformers import pipeline, AutoModelForSeq2SeqLM, AutoTokenizer
+from transformers import pipeline, AutoModelForSeq2SeqLM, AutoTokenizer, AutoImageProcessor, AutoModelForImageClassification
 import requests
 from bs4 import BeautifulSoup
 import smtplib
@@ -11,7 +11,7 @@ class MLService:
        # Summarization
        self.summarizer = pipeline(
            "summarization",
-           model="facebook/bart-small-cnn",
+           model="facebook/bart-large-cnn",
            max_length=130,
            min_length=30
        )
@@ -19,7 +19,7 @@ class MLService:
        # Image Classification 
        self.classifier = pipeline(
            "image-classification",
-           model="google/vit-base-patch16-224-bit",
+           model="google/vit-base-patch16-224",
            top_k=5
        )
 
@@ -65,9 +65,10 @@ class MLService:
 
        with smtplib.SMTP("smtp.gmail.com", 587) as server:
            server.starttls()
-           server.login(
-               os.getenv("EMAIL_USER"),
-               os.getenv("EMAIL_PASSWORD")
-           )
+        #    server.login(
+        #        os.getenv("EMAIL_USER"),
+        #        os.getenv("EMAIL_PASSWORD")
+        #    )
+           server.login("aditivakeel.aws@gmail.com", "Arnav@1234")
            server.send_message(msg)
            return {"status": "sent"}
