@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
-import type { Workflow, TaskNodeType } from '../types/workflow';
+import type { Workflow, TaskNodeType, ScrapingConfig,SummarizationConfig,EmailConfig, ClassificationConfig } from '../types/workflow';
 import { api } from '../lib/api';
 
 export const useWorkflowStore = defineStore('workflow', () => {
@@ -92,12 +92,65 @@ export const useWorkflowStore = defineStore('workflow', () => {
       workflowId: currentWorkflow.value.id,
       inputs: [],
       outputs: [],
-      config: {}
+      config:  (() => {
+        switch (type) {
+          case 'summarization':
+            return {
+              model: 'default',
+              maxLength: 100,
+              minLength: 30,
+               input_text: ''
+            } as SummarizationConfig;
+          
+          case 'scraping':
+            return {
+              url: '',
+              selectors: [],
+            } as ScrapingConfig;
+          
+          case 'classification':
+            return {
+              model: 'default',
+              categories: [],
+              image_url: ''
+            } as ClassificationConfig;
+          
+          case 'email':
+            return {
+              recipient: '',
+              subject: '',
+              body: '',
+            } as EmailConfig;
+          
+          default:
+            throw new Error(`Unsupported task type: ${type}`);
+        }
+      })()
     };
 
     currentWorkflow.value.tasks.push(task);
     await updateWorkflow();
   };
+
+  const createConnection = async (connection: { sourceId: string; targetId: string }) => {
+    if (!currentWorkflow.value) return;
+
+    console.log('Creating connection in store:', connection);
+    const newConnection = {
+      id: crypto.randomUUID(),
+      workflowId: currentWorkflow.value.id,
+      sourceId: connection.sourceId,
+      targetId: connection.targetId,
+    };
+  
+    currentWorkflow.value.connections.push(newConnection);
+    console.log('Current workflow state:', {
+      tasks: currentWorkflow.value.tasks,
+      connections: currentWorkflow.value.connections
+    });
+    await updateWorkflow();
+  };
+  
 
   const updateTaskPosition = async (taskId: string, position: { x: number, y: number }) => {
     if (!currentWorkflow.value) return;
@@ -164,5 +217,6 @@ export const useWorkflowStore = defineStore('workflow', () => {
     updateTaskPosition,
     updateWorkflow,
     executeWorkflow,
+    createConnection
   };
 });

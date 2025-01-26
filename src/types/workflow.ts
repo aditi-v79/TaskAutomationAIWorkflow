@@ -17,17 +17,12 @@ export interface Connection {
   workflowId: string;
   sourceId: string;    // Source task ID
   targetId: string;    // Target task ID
-  sourceHandle?: 'source' | 'target'; // Optional: for multiple connection points
-  targetHandle?: 'source' | 'target';
-  status?: string; 
-
 }
 
 export interface ActiveConnection {
   sourceId: string;
   sourcePosition: { x: number; y: number };
   targetPosition: { x: number; y: number };
-  isValid: boolean;
 }
 
 export interface SummarizationConfig {
