@@ -5,14 +5,11 @@ import {
   CustomNode,
   CustomEdge,
   TaskType,
-  NodeData,
-  SummarizationConfig, 
-  ScrapingConfig, 
-  ClassificationConfig, 
-  EmailConfig,
-  TaskConfig
+  TaskConfig, 
+  TaskResult
 } from '../types/workflowTypes';
-import api, { workflowApi } from '../api/index.ts';
+import api from '../api/index.ts';
+import { WorkflowExecutor } from '../utility/workflowExecutor.ts';
 import { handleApiError } from '../api/error.ts';
 
 interface WorkflowState {
@@ -26,11 +23,17 @@ interface WorkflowState {
   updateWorkflow: () => Promise<void>;
   executeWorkflow: (id: string) => Promise<any>;
   createEdge: (connection: { sourceId: string; targetId: string }) => Promise<void>;
+  taskResults: Record<string, TaskResult>;
+  isExecuting: boolean;
+  executionProgress: Record<string, 'pending' | 'processing' | 'completed' | 'error'>;
 }
 
 const useWorkflowStore = create<WorkflowState>((set, get) => ({
   workflows: [],
   currentWorkflow: null,
+  taskResults: {},
+  isExecuting: false,
+  executionProgress: {},
 
   fetchWorkflows: async () => {
     try {
@@ -226,20 +229,141 @@ const useWorkflowStore = create<WorkflowState>((set, get) => ({
     }
   },
 
+  canExecuteNode: (nodeId: string) => {
+    const { currentWorkflow } = get();
+    if (!currentWorkflow) return false;
+
+    const executor = new WorkflowExecutor(currentWorkflow.nodes, currentWorkflow.edges);
+    return executor.getNextExecutableNodes().some(node => node.id === nodeId);
+  },
+
+
   executeWorkflow: async (id: string) => {
+    const { currentWorkflow } = get();
+    if (!currentWorkflow) return;
+
     try {
-      const execution = await api.workflows.execute(id);
+      set({ isExecuting: true });
+      
+      const executor = new WorkflowExecutor(currentWorkflow.nodes, currentWorkflow.edges);
+      const executionOrder = executor.getExecutionOrder();
+
+      // Initialize progress
       set(state => ({
-        workflows: state.workflows.map(w =>
-          w.id === id ? { ...w, status: 'running' } : w
-        )
+        executionProgress: executionOrder.reduce((acc, node) => ({
+          ...acc,
+          [node.id]: 'pending'
+        }), {})
       }));
-      return execution;
+
+      for (const node of executionOrder) {
+        // Update node status to processing
+        set(state => ({
+          executionProgress: {
+            ...state.executionProgress,
+            [node.id]: 'processing'
+          }
+        }));
+
+        try {
+          // Get config with inputs from previous nodes
+          const config = executor.getNodeConfig(node.id);
+          
+          // Execute the task
+          const result = await get().executeTask(
+            node.id,
+            node.data.config.type,
+            config
+          );
+
+          // Mark node as executed with result
+          executor.markNodeAsExecuted(node.id, {
+            status: 'success',
+            nodeId: node.id,
+            result
+          });
+
+          // Update progress
+          set(state => ({
+            executionProgress: {
+              ...state.executionProgress,
+              [node.id]: 'completed'
+            }
+          }));
+
+        } catch (error) {
+          set(state => ({
+            executionProgress: {
+              ...state.executionProgress,
+              [node.id]: 'error'
+            }
+          }));
+          throw error;
+        }
+      }
+
+      set({ isExecuting: false });
+      return { status: 'completed' };
+
     } catch (error) {
-      console.error('Failed to execute workflow:', error);
+      set({ isExecuting: false });
+      console.error('Workflow execution failed:', error);
       throw error;
     }
   },
+
+  // In workflowStore.ts, update executeTask:
+executeTask: async (nodeId: string, type: string, config: TaskConfig) => {
+  try {
+    console.log('Executing task:', { nodeId, type, config }); 
+
+    set(state => ({
+      ...state,
+      taskResults: {
+        ...state.taskResults,
+        [nodeId]: { status: 'processing', nodeId }
+      }
+    }));
+
+    const response = await api.workflows.executeTask(nodeId, type, config);
+    console.log('Task response:', response); 
+
+    set(state => ({
+      ...state,
+      taskResults: {
+        ...state.taskResults,
+        [nodeId]: { 
+          status: 'success', 
+          nodeId,
+          result: response.result 
+        }
+      }
+    }));
+
+    return response.result;
+  } catch (error) {
+    console.error('Task execution error:', error); 
+    set(state => ({
+      ...state,
+      taskResults: {
+        ...state.taskResults,
+        [nodeId]: { 
+          status: 'error', 
+          nodeId,
+          error: error.message 
+        }
+      }
+    }));
+    throw error;
+  }
+}
+
+
+  
+
+
 }));
+
+
 
 export {useWorkflowStore};

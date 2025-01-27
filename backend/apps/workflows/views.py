@@ -6,6 +6,8 @@ from django.conf import settings
 from .models import Workflow
 from .serializers import WorkflowSerializer, TaskSerializer, ConnectionSerializer
 from apps.executions.tasks import execute_workflow
+from .constants import VALID_TASK_CONNECTIONS
+
 
 class WorkflowViewSet(viewsets.ModelViewSet):
     queryset = Workflow.objects.all()
@@ -39,6 +41,47 @@ class WorkflowViewSet(viewsets.ModelViewSet):
             'execution_id': execution.id,
             'status': 'started'
         })
+    
+    @action(detail=False, methods=['POST'])
+    async def execute_task(self, request):
+        try:
+            node_id = request.data.get('nodeId')
+            task_type = request.data.get('type')
+            config = request.data.get('config')
+            
+            # Map frontend task types to service method names
+            method_mapping = {
+                'scraping': 'scrape_web',
+                'summarization': 'summarize_text',
+                'classification': 'classify_image',
+                'email': 'send_email'
+            }
+            
+            # Get the correct method name
+            method_name = method_mapping.get(task_type)
+            if not method_name:
+                return Response({
+                    'nodeId': node_id,
+                    'error': f'Invalid task type: {task_type}',
+                    'status': 'error'
+                }, status=400)
+
+            # Initialize ML service and execute
+            ml_service = MLService()
+            result = await getattr(ml_service, method_name)(config)
+            
+            return Response({
+                'nodeId': node_id,
+                'result': result,
+                'status': 'success'
+            })
+
+        except Exception as e:
+            return Response({
+                'nodeId': node_id,
+                'error': str(e),
+                'status': 'error'
+            }, status=400)
 
 class TaskViewSet(viewsets.ModelViewSet):
     serializer_class = TaskSerializer

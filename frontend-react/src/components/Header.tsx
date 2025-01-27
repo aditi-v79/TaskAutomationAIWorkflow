@@ -1,6 +1,8 @@
-import React from 'react';
-import { Play, Save, Settings, Edit2, ArrowLeft } from 'lucide-react';
+import React, { useState } from 'react';
+import { Play, Save, Settings, Edit2, ArrowLeft, Loader2 } from 'lucide-react';
 import { ThemeToggle } from './ThemeToggleButton.tsx';
+import { useWorkflowStore } from '../stores/workflowStore.ts';
+import { useToast } from './Toast.tsx';
 
 interface HeaderProps {
   showBackButton: boolean;
@@ -17,6 +19,26 @@ const Header: React.FC<HeaderProps> = ({
   isRunning,
   onBackToList
 }) => {
+  const isExecuting = useWorkflowStore((state) => state.isExecuting);
+  const executeWorkflow = useWorkflowStore((state) => state.executeWorkflow);
+  const currentWorkflow = useWorkflowStore((state) => state.currentWorkflow);
+  const { addToast } = useToast();
+  const [workflowName, setWorkflowName] = useState(currentWorkflow?.name || '');
+
+
+  const handleExecute = async () => {
+    if (!currentWorkflow) return;
+    
+    try {
+      await executeWorkflow(currentWorkflow.id);
+      addToast('Workflow executed successfully', 'success');
+    } catch (error) {
+      addToast('Workflow execution failed', 'error');
+    }
+  };
+
+  
+  
   return (
     <header className="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 px-6 py-4 shadow-sm">
       <div className="max-w-7xl mx-auto flex items-center justify-between">
@@ -52,13 +74,23 @@ const Header: React.FC<HeaderProps> = ({
               </button>
 
               <button
-                onClick={onRun}
-                disabled={isRunning}
+                onClick={handleExecute}
+                disabled={isExecuting}
                 className="btn-primary disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                <Play className="w-4 h-4 mr-2" />
-                {isRunning ? 'Running...' : 'Run Workflow'}
+                {isExecuting ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Executing...
+                  </>
+                ) : (
+                  <>
+                    <Play className="w-4 h-4 mr-2" />
+                    Execute Workflow
+                  </>
+                )}
               </button>
+
             </>
           )}
 

@@ -2,6 +2,7 @@ import React, { useCallback, useState } from 'react';
 import { Handle, Position } from 'reactflow';
 import { Settings } from 'lucide-react';
 import TaskConfigModal from './TaskConfigModal.tsx';
+import TaskResult  from './TaskResult.tsx';
 import { NodeData, TaskConfig } from '../types/workflowTypes';
 
 interface CustomNodeProps {
@@ -81,6 +82,8 @@ const CustomNodeComponent: React.FC<CustomNodeProps> = ({ data, id }) => {
           config: data.config
         }}
       />
+      <TaskResult nodeId={id} />
+
     </div>
   );
 };

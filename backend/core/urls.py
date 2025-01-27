@@ -28,4 +28,5 @@ urlpatterns = [
     path('api/', include(router.urls)),
     path('api/', include(workflows_router.urls)),
     path('api/docs/', schema_view.with_ui('swagger', cache_timeout=0)),
+    path('workflows/execute-task/', WorkflowViewSet.as_view({'post': 'execute_task'})),
 ]

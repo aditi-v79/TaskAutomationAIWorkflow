@@ -2,7 +2,9 @@
 import React, { useState, useEffect } from 'react';
 import { Dialog } from '@headlessui/react';
 import { Trash2 } from 'lucide-react';
-import { CustomNode, TaskType, SummarizationConfig, ScrapingConfig, ClassificationConfig, EmailConfig } from '../types/workflowTypes';
+import { CustomNode, TaskType, SummarizationConfig, ScrapingConfig, ClassificationConfig, EmailConfig } from '../types/workflowTypes.ts';
+import { useWorkflowStore } from '../stores/workflowStore.ts';
+import { useToast } from './Toast.tsx';
 
 interface TaskConfigModalProps {
   isOpen: boolean;
@@ -24,6 +26,9 @@ const TaskConfigModal: React.FC<TaskConfigModalProps> = ({ isOpen, task, onClose
     SummarizationConfig | ScrapingConfig | ClassificationConfig | EmailConfig | null
   >(null);
 
+  const executeTask = useWorkflowStore((state) => state.executeTask);
+  const { addToast } = useToast();
+
   useEffect(() => {
     if (task) {
       const defaultConfig = defaultConfigs[task.type];
@@ -34,13 +39,23 @@ const TaskConfigModal: React.FC<TaskConfigModalProps> = ({ isOpen, task, onClose
     }
   }, [task]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!editableConfig || !task) return;
-    onSave(editableConfig);
-    onClose();
+  
+    try {
+      // First save the new configuration
+      onSave(editableConfig);
+      onClose();
+      
+      // Then execute with the new config
+      await executeTask(task.id, task.type, editableConfig);
+      addToast('Task configured successfully', 'success');
+    } catch (error) {
+      addToast('Failed to execute task', 'error');
+    }
   };
-
+  
 
   const updateConfig = <K extends keyof typeof editableConfig>(
     key: K,

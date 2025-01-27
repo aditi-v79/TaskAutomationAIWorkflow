@@ -17,7 +17,6 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'corsheaders',
     # Third party apps
     'rest_framework',
     'corsheaders',
@@ -60,53 +59,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'core.wsgi.application'
 
-# # PostgreSQL Configuration
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.postgresql',
-#         'NAME': os.getenv('POSTGRES_DB', 'workflow_db'),
-#         'USER': os.getenv('POSTGRES_USER', 'workflow_user'),
-#         'PASSWORD': os.getenv('POSTGRES_PASSWORD', 'workflow_password'),
-#         'HOST': os.getenv('POSTGRES_HOST', 'localhost'),
-#         'PORT': os.getenv('POSTGRES_PORT', '5432'),
-#         'CONN_MAX_AGE': 60,
-#         'OPTIONS': {
-#             'connect_timeout': 10,
-#         }
-#     }
-# }
-
-# # Cache Configuration
-# CACHES = {
-#     'default': {
-#         'BACKEND': 'django_redis.cache.RedisCache',
-#         'LOCATION': os.getenv('REDIS_URL', 'redis://localhost:6379/0'),
-#         'OPTIONS': {
-#             'CLIENT_CLASS': 'django_redis.client.DefaultClient',
-#             'PARSER_CLASS': 'redis.connection.HiredisParser',
-#             'CONNECTION_POOL_CLASS': 'redis.BlockingConnectionPool',
-#             'CONNECTION_POOL_CLASS_KWARGS': {
-#                 'max_connections': 50,
-#                 'timeout': 20,
-#             },
-#             'MAX_CONNECTIONS': 1000,
-#             'RETRY_ON_TIMEOUT': True,
-#         }
-#     }
-# }
-
-# # Cache time to live is 15 minutes
-# CACHE_TTL = 60 * 15
-
-# # Celery Configuration
-# CELERY_BROKER_URL = os.getenv('REDIS_URL', 'redis://localhost:6379/0')
-# CELERY_RESULT_BACKEND = CELERY_BROKER_URL
-# CELERY_ACCEPT_CONTENT = ['application/json']
-# CELERY_TASK_SERIALIZER = 'json'
-# CELERY_RESULT_SERIALIZER = 'json'
-# CELERY_TIMEZONE = 'UTC'
-# CELERY_TASK_TIME_LIMIT = 30 * 60
-# CELERY_TASK_SOFT_TIME_LIMIT = 60
 
 #SQLite Configuration
 DATABASES = {

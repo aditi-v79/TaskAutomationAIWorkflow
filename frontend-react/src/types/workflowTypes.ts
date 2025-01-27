@@ -87,6 +87,14 @@ export interface ExecutionLog {
   level: 'info' | 'error' | 'warning';
 }
 
+export interface TaskResult {
+  nodeId: string;
+  result?: any;
+  status: 'success' | 'error' | 'processing' | 'idle';
+  error?: string;
+}
+
+
 // Node Data Interface
 export interface NodeData {
   label: string;
