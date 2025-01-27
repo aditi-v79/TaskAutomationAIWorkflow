@@ -91,4 +91,5 @@ export interface ExecutionLog {
 export interface NodeData {
   label: string;
   config: TaskConfig;
+  onDelete?: (nodeId: string) => void;
 }

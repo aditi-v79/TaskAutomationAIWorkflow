@@ -52,7 +52,6 @@ const WorkflowCanvas: React.FC = () => {
   const onConnect: OnConnect = useCallback((connection: Connection) => {
     console.log('Connection:', connection);  // Debug the connection object
 
-    
     const sourceNode = nodes.find(n => n.id === connection.source);
     const targetNode = nodes.find(n => n.id === connection.target);
 
@@ -60,8 +59,6 @@ const WorkflowCanvas: React.FC = () => {
       addToast('Cannot find connected nodes', 'error');
       return;
   }
-
-
     console.log('Found nodes:', { sourceNode, targetNode });  // Debug found nodes
 
     // console.log('Source Node:', sourceNode);
@@ -126,13 +123,25 @@ const WorkflowCanvas: React.FC = () => {
             type: 'classification',
             image_url: '',
             confidence_threshold: 0.5
-          }
+          },
+          onDelete: handleDeleteNode
         },
       };
 
       setNodes((prevNodes) => [...prevNodes, newNode]);
     }
 
+  const handleDeleteNode = useCallback((nodeId: string) => {
+      // Remove the node
+      setNodes((nodes) => nodes.filter((node) => node.id !== nodeId));
+      
+      // Remove all connected edges
+      setEdges((edges) => edges.filter(
+        (edge) => edge.source !== nodeId && edge.target !== nodeId
+      ));
+  
+      addToast('Node deleted successfully', 'success');
+    }, []);
 
 
 

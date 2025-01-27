@@ -9,6 +9,7 @@ interface TaskConfigModalProps {
   task?: CustomNode;
   onClose: () => void;
   onSave: (config: SummarizationConfig | ScrapingConfig | ClassificationConfig | EmailConfig) => void;
+  onDelete: (nodeId: string) => void;
 }
 
 const defaultConfigs: Record<TaskType, SummarizationConfig | ScrapingConfig | ClassificationConfig | EmailConfig> = {
@@ -18,7 +19,7 @@ const defaultConfigs: Record<TaskType, SummarizationConfig | ScrapingConfig | Cl
   email: { type: 'email', recipient: '', subject: '', body: '' }
 };
 
-const TaskConfigModal: React.FC<TaskConfigModalProps> = ({ isOpen, task, onClose, onSave }) => {
+const TaskConfigModal: React.FC<TaskConfigModalProps> = ({ isOpen, task, onClose, onSave, onDelete  }) => {
   const [editableConfig, setEditableConfig] = useState<
     SummarizationConfig | ScrapingConfig | ClassificationConfig | EmailConfig | null
   >(null);
@@ -50,6 +51,12 @@ const TaskConfigModal: React.FC<TaskConfigModalProps> = ({ isOpen, task, onClose
     }
   };
 
+  const handleDelete = () => {
+    if (task){
+    onDelete(task.id);
+    onClose();
+    }
+  };
   return (
     <Dialog open={isOpen} onClose={onClose} className="relative z-50">
       <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
@@ -65,11 +72,11 @@ const TaskConfigModal: React.FC<TaskConfigModalProps> = ({ isOpen, task, onClose
             {task?.type === 'summarization' && editableConfig && (
               <>
                 <div>
-                  <label className="block text-sm font-medium mb-1 dark:text-slate-300">Input Text</label>
+                  <label className="block text-sm font-medium mb-1 dark:text-slate-300 ">Input Text</label>
                   <textarea
                     value={(editableConfig as SummarizationConfig).input_text}
                     onChange={(e) => updateConfig('input_text', e.target.value)}
-                    className="w-full border rounded p-2"
+                    className="w-full border rounded p-2 dark:bg-slate-700"
                     rows={4}
                   />
                 </div>
@@ -169,7 +176,7 @@ const TaskConfigModal: React.FC<TaskConfigModalProps> = ({ isOpen, task, onClose
                   <textarea
                     value={(editableConfig as EmailConfig).body}
                     onChange={(e) => updateConfig('body', e.target.value)}
-                    className="w-full border rounded p-2 dark:border-slate-600"
+                    className="w-full border rounded p-2 dark:bg-slate-700 dark:border-slate-600"
                     rows={4}
                   />
                 </div>
@@ -193,12 +200,12 @@ const TaskConfigModal: React.FC<TaskConfigModalProps> = ({ isOpen, task, onClose
                 Save
               </button>
 
-              {/* <button
-                // onClick={handleDelete}
-                className="p-2 text-red-600 hover:bg-red-50 rounded-full"
+              <button
+              onClick={handleDelete}
+                className="p-2 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-full transition-colors"
               >
               <Trash2 className="w-4 h-4" />
-              </button> */}
+              </button>
 
             </div>
           </form>

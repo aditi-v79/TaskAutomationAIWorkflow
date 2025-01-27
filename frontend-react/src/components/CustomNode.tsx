@@ -29,6 +29,11 @@ const CustomNodeComponent: React.FC<CustomNodeProps> = ({ data, id }) => {
     setIsConfigOpen(false);
   };
 
+  const handleDelete = () => {
+    setIsConfigOpen(false);
+    data.onDelete?.(id);
+  };
+
   return (
     <div className="bg-white dark:bg-slate-700 rounded-lg shadow-sm p-4 min-w-[160px] border-2 border-primary">
       
@@ -70,6 +75,7 @@ const CustomNodeComponent: React.FC<CustomNodeProps> = ({ data, id }) => {
         isOpen={isConfigOpen}
         onClose={() => setIsConfigOpen(false)}
         onSave={handleConfigSave}
+        onDelete={handleDelete}
         task={{
           type: data.config.type,
           config: data.config
