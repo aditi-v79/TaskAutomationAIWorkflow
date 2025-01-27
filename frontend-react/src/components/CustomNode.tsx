@@ -1,12 +1,12 @@
-import React, {useState} from 'react';
+import React, { useCallback, useState } from 'react';
 import { Handle, Position } from 'reactflow';
 import { Settings } from 'lucide-react';
 import TaskConfigModal from './TaskConfigModal.tsx';
-import { NodeData, TaskConfig, CustomNode } from '../types/workflowTypes';
+import { NodeData, TaskConfig } from '../types/workflowTypes';
 
 interface CustomNodeProps {
   data: NodeData;
-  id: string
+  id: string;
 }
 
 const CustomNodeComponent: React.FC<CustomNodeProps> = ({ data, id }) => {
@@ -15,6 +15,7 @@ const CustomNodeComponent: React.FC<CustomNodeProps> = ({ data, id }) => {
   const [nodeName, setNodeName] = useState(`New ${data.config.type} Task`);
 
   const handleDoubleClick = (e: React.MouseEvent) => {
+    console.log("entered handle double click");
     e.stopPropagation();
     setIsEditing(true);
   };
@@ -31,6 +32,7 @@ const CustomNodeComponent: React.FC<CustomNodeProps> = ({ data, id }) => {
 
   return (
     <div className="bg-white rounded-lg shadow-sm p-4 min-w-[160px] border-2 border-primary">
+      
       <Handle type="target" position={Position.Top} className="w-2 h-2" />
       
       <div className="flex items-center justify-between gap-2">
@@ -75,7 +77,6 @@ const CustomNodeComponent: React.FC<CustomNodeProps> = ({ data, id }) => {
     </div>
   );
 };
-
 
 
 export default React.memo(CustomNodeComponent);

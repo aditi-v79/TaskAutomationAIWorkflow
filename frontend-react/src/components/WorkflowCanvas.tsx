@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import ReactFlow, {
   Background,
   Controls,
@@ -24,6 +24,10 @@ const edgeTypes: EdgeTypes = {
   custom: CustomEdge,
   interactive: InteractiveEdge,
 };
+const nodeTypes = {
+  customNode: CustomNode
+};
+
 
 const WorkflowCanvas: React.FC = () => {
   const [nodes, setNodes] = useState<CustomNodeType[]>([]);
@@ -36,10 +40,7 @@ const WorkflowCanvas: React.FC = () => {
     padding: 0.99,
   };
 
-  const nodeTypes = {
-    customNode: CustomNode
-  };
-
+  
 
   const onNodesChange = useCallback(
     (changes: NodeChange[]) => {
@@ -83,15 +84,14 @@ const WorkflowCanvas: React.FC = () => {
         target: connection.target!,
       },
     ]);
-  }, [edges, nodes, addToast]);
+  }, [edges, nodes]);
 
   const onDragOver = useCallback((event: React.DragEvent) => {
     event.preventDefault();
     event.dataTransfer.dropEffect = 'move';
   }, []);
 
-  const onDrop = useCallback(
-    (event: React.DragEvent) => {
+  const onDrop = (event: React.DragEvent) => {
       event.preventDefault();
       const type = event.dataTransfer.getData('application/reactflow') as TaskType;
       
@@ -131,15 +131,13 @@ const WorkflowCanvas: React.FC = () => {
       };
 
       setNodes((prevNodes) => [...prevNodes, newNode]);
-    },
-    [nodes]
-);
+    }
+
 
 
 
 
   return (
-    <ReactFlowProvider>
         <div className="h-screen flex flex-col" onDragOver={onDragOver} onDrop={onDrop} style={{ width: '100%', height: '100%' }}>
           <ReactFlow
             nodes={nodes}
@@ -150,12 +148,13 @@ const WorkflowCanvas: React.FC = () => {
             nodeTypes={nodeTypes}
             edgeTypes={edgeTypes}
             fitView={false}
+            nodesDraggable={true}
+            
           >
             <Background />
             <Controls />
           </ReactFlow>
         </div>
-        </ReactFlowProvider>
     
   );
 };

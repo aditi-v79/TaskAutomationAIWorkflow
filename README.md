@@ -1,6 +1,6 @@
 # AI-Powered Workflow Automation Platform
 
-A modern workflow automation platform that leverages AI/ML capabilities for task automation, built with Vue.js and Django.
+A modern workflow automation platform that leverages AI/ML capabilities for task automation, built with React and Django.
 
 ## Features
 
@@ -10,18 +10,17 @@ A modern workflow automation platform that leverages AI/ML capabilities for task
   - Image classification 
   - Data scraping
   - Email automation
-- Real-time workflow execution monitoring
+
 
 
 ## Tech Stack
 
 ### Frontend
-- Vue.js 3 with Composition API
+- React
 - TypeScript
 - Tailwind CSS
-- Pinia for state management
-- Vue Router
-- Vue Draggable Next
+- Zustand for state management
+- React Router
 
 ### Backend
 - Django REST Framework
@@ -39,10 +38,10 @@ A modern workflow automation platform that leverages AI/ML capabilities for task
 
 ```
 .
-├── frontend/               # Vue.js frontend application
+├── frontend-react/               # React frontend application
 │   ├── src/
-│   │   ├── components/    # Reusable Vue components and Page components
-│   │   ├── stores/        # Pinia stores
+│   │   ├── components/    # Reusable react components and Page components
+│   │   ├── stores/        # zustand stores
 │   │   ├── services/      # Utility functions
 │   │   └── types/         # TypeScript definitions
 │   └── public/            # Static assets
