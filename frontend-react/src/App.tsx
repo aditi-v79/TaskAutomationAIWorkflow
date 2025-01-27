@@ -93,7 +93,7 @@ const App: React.FC = () => {
   return (
     <ReactFlowProvider>
     <ToastProvider>
-    <div className="h-screen flex flex-col bg-gray-50">
+    <div className="h-screen flex flex-col bg-gray-50 dark:bg-slate-900">
       <Header
         showBackButton={currentView === 'editor'}
         onSave={handleSave}

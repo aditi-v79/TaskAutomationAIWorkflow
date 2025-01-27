@@ -1,0 +1,29 @@
+:root {
+  --primary: #3b82f6;
+  --primary-dark: #2563eb;
+  --secondary: #64748b;
+  --background: #f8fafc;
+  --surface: #ffffff;
+  --border: #e2e8f0;
+}
+
+:root.dark {
+  --primary: #60a5fa;
+  --primary-dark: #3b82f6;
+  --secondary: #94a3b8;
+  --background: #121212;
+  --surface: #1e293b;
+  --border: #334155;
+}
+
+.dark .task-node {
+  @apply bg-slate-800 border-slate-700;
+}
+
+.dark .btn-primary {
+  @apply bg-primary hover:bg-primary-dark;
+}
+
+.dark .btn-secondary {
+  @apply bg-slate-800 text-slate-200 border-slate-700 hover:bg-slate-700;
+}

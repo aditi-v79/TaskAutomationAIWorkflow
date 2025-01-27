@@ -44,10 +44,10 @@ export const ToastProvider: React.FC<{ children: ReactNode }> = ({ children }) =
           <div
             key={toast.id}
             className={`p-4 min-w-[300px]  mb-2 rounded-md shadow-lg transition-all duration-500 ${
-              toast.type === 'error' ? 'bg-red-500 text-white' :
-              toast.type === 'success' ? 'bg-green-500 text-white' :
-              toast.type === 'warning' ? 'bg-yellow-500 text-white' :
-              'bg-blue-500 text-white'
+              toast.type === 'error' ? 'bg-red-500 dark:bg-red-600  text-white' :
+              toast.type === 'success' ? 'bg-green-500 dark:bg-green-600  text-white' :
+              toast.type === 'warning' ? 'bg-yellow-500 dark:bg-yellow-600  text-white' :
+              'bg-blue-500 dark:bg-blue-600  text-white'
             }`}
           >
             {toast.title}

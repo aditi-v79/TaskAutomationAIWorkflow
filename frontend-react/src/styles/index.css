@@ -14,7 +14,7 @@
 
 @layer base {
   body {
-    @apply bg-slate-50 antialiased text-slate-900;
+    @apply bg-slate-50 dark:bg-slate-900 antialiased text-slate-900 dark:text-slate-100 transition-colors duration-200;
   }
 }
 
