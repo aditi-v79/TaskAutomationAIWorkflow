@@ -4,14 +4,15 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "vue-tsc && vite build",
-    "preview": "vite preview",
+    "start:react": "cd frontend-react && npm start",
+    "build:react": "cd frontend-react && npm run build",
     "setup-db": "node scripts/setup-db.js"
   },
   "dependencies": {
     "@headlessui/vue": "^1.7.23",
     "@types/uuid": "^10.0.0",
+    "@vue-flow/background": "^1.3.2",
+    "@vue-flow/controls": "^1.1.2",
     "@vue-flow/core": "^1.42.1",
     "@vueuse/core": "^10.9.0",
     "axios": "^1.6.7",
@@ -19,7 +20,7 @@
     "lucide-vue-next": "^0.344.0",
     "pinia": "^2.3.1",
     "uuid": "^11.0.5",
-    "vue": "^3.4.21",
+    "vue": "^3.4.15",
     "vue-draggable-next": "^2.2.1",
     "vue-router": "^4.3.0"
   },
