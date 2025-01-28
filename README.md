@@ -61,14 +61,13 @@ A modern workflow automation platform that leverages AI/ML capabilities for task
 
 ### Prerequisites
 
-- Docker and Docker Compose
 - Node.js 18+
 - Python 3.10+
 - SQLite
 
 ### Development Setup
 1. Clone the repository
-2. Run `docker-compose up --build`
+2. For the frontend run `npm run start` inside the frontend-react folder
 3. Access the application at:
    - Frontend: http://localhost:5173
    - Backend: http://localhost:8000
@@ -76,7 +75,7 @@ A modern workflow automation platform that leverages AI/ML capabilities for task
    ```
 
 The application will be available at:
-- Frontend: http://localhost:5173
+- Frontend: http://localhost:3000
 - Backend API: http://localhost:8000
 - API Documentation: http://localhost:8000/api/docs/
 
